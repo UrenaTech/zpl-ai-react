@@ -1,0 +1,22 @@
+{
+  "name": "zpl-ai-react-vite-example",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build"
+  },
+  "dependencies": {
+    "@zpl-ai/react": "file:../..",
+    "@vitejs/plugin-react": "^5.0.2",
+    "vite": "^7.1.5",
+    "typescript": "^5.9.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9"
+  }
+}
