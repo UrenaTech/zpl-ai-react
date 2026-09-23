@@ -2,15 +2,39 @@ import { API_URL, RENDER_SETTINGS } from "../config";
 import { ZplAiError } from "../errors";
 import type { BarcodeType, RenderRequest } from "../types";
 
-const RETRYABLE = new Set([429, 500, 502, 503, 504]);
-const delay = (milliseconds: number, signal: AbortSignal) => new Promise<void>((resolve, reject) => {
-  const id = setTimeout(resolve, milliseconds);
+const RETRYABLE = new Set([500, 502, 503, 504]);
+let nextRateLimitRetryAt = 0;
 
-  signal.addEventListener("abort", () => {
+const delay = (milliseconds: number, signal: AbortSignal) => new Promise<void>((resolve, reject) => {
+  if (signal.aborted) {
+    reject(new DOMException("Aborted", "AbortError"));
+    return;
+  }
+
+  const onAbort = () => {
     clearTimeout(id);
     reject(new DOMException("Aborted", "AbortError"));
-  }, { once: true });
+  };
+  const id = setTimeout(() => {
+    signal.removeEventListener("abort", onAbort);
+    resolve();
+  }, milliseconds);
+  signal.addEventListener("abort", onAbort, { once: true });
 });
+
+function rateLimitDelay(response: Response, attempt: number): number {
+  const header = response.headers.get("Retry-After");
+  const seconds = header === null ? NaN : Number(header);
+  const retryAt = Number.isFinite(seconds)
+    ? Date.now() + Math.max(seconds * 1000, 0)
+    : header && !Number.isNaN(Date.parse(header))
+      ? Date.parse(header)
+      : Date.now() + Math.min(1000 * 2 ** attempt, 30_000);
+
+  const scheduledAt = Math.max(retryAt, nextRateLimitRetryAt);
+  nextRateLimitRetryAt = scheduledAt + 1000;
+  return Math.max(0, scheduledAt - Date.now());
+}
 
 async function getError(response: Response): Promise<ZplAiError> {
   try {
@@ -38,9 +62,9 @@ async function render(
     Accept: "image/png"
   };
 
-  let response: Response | undefined;
+  let response: Response;
 
-  for (let attempt = 0; attempt < 3; attempt += 1) {
+  for (let attempt = 0; ; attempt += 1) {
     response = await fetch(`${API_URL}${path}`, {
       method: "POST",
       signal,
@@ -49,20 +73,20 @@ async function render(
       body
     });
 
-    if (response.ok || !RETRYABLE.has(response.status) || attempt === 2) break;
+    if (response.status === 429 && attempt < 10) {
+      await delay(rateLimitDelay(response, attempt), signal);
+      continue;
+    }
 
-    const retryAfter = Number(response.headers.get("Retry-After"));
-    await delay(
-      Number.isFinite(retryAfter) && retryAfter > 0
-        ? Math.min(retryAfter * 1000, 5000)
-        : 250 * 2 ** attempt,
-      signal
-    );
+    if (RETRYABLE.has(response.status) && attempt < 2) {
+      await delay(250 * 2 ** attempt, signal);
+      continue;
+    }
+
+    break;
   }
 
-  if (!response) throw new ZplAiError("ZPL.AI did not return a response");
   if (!response.ok) throw await getError(response);
-
   const contentType = response.headers.get("Content-Type");
   if (contentType && !contentType.toLowerCase().startsWith("image/png")) {
     throw new ZplAiError("ZPL.AI returned a non-PNG response");

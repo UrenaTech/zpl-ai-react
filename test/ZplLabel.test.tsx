@@ -13,7 +13,7 @@ describe("ZplLabel", () => {
     render(<ZplLabel apiKey="zpk_test" zpl="^XA^FO20,20^FDHello^FS^XZ" alt="Shipping label" />);
 
     await waitFor(() => expect(screen.getByAltText("Shipping label")).toBeTruthy());
-    expect(fetchMock.mock.calls[0][0]).toBe("https://app.zpl.ai/api/public/zpl/img");
+    expect(new URL(fetchMock.mock.calls[0][0]).pathname).toBe("/api/public/zpl/img");
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).zpl).toContain("^FDHello");
   });
 

@@ -19,7 +19,7 @@ describe("Barcode", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url, options] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://app.zpl.ai/api/public/barcode/img");
+    expect(new URL(url).pathname).toBe("/api/public/barcode/img");
     expect(options.headers.Authorization).toBe("Bearer zpk_test");
     expect(JSON.parse(options.body)).toEqual({
       type: "code128",

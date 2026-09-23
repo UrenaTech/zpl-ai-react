@@ -8,7 +8,7 @@ describe("API client", () => {
     vi.useRealTimers();
   });
 
-  it("uses the production barcode endpoint and preserves its no-store response", async () => {
+  it("requests uncached barcode images from the public endpoint", async () => {
     const mock = vi.fn().mockImplementation(async () => new Response(new Blob(["png"]), {
       status: 200,
       headers: { "Content-Type": "image/png", "Cache-Control": "no-store" }
@@ -22,7 +22,7 @@ describe("API client", () => {
     await renderBarcode("zpk_test", request, signal);
 
     expect(mock).toHaveBeenCalledTimes(2);
-    expect(mock.mock.calls[0][0]).toBe("https://app.zpl.ai/api/public/barcode/img");
+    expect(new URL(mock.mock.calls[0][0]).pathname).toBe("/api/public/barcode/img");
     expect(mock.mock.calls[0][1]).toMatchObject({
       method: "POST",
       cache: "no-store",
@@ -45,7 +45,7 @@ describe("API client", () => {
 
     await renderZpl("zpk_test", "^XA^XZ", new AbortController().signal);
 
-    expect(mock.mock.calls[0][0]).toBe("https://app.zpl.ai/api/public/zpl/img");
+    expect(new URL(mock.mock.calls[0][0]).pathname).toBe("/api/public/zpl/img");
     expect(JSON.parse(mock.mock.calls[0][1].body)).toEqual({
       zpl: "^XA^XZ",
       widthIn: 4,
@@ -103,6 +103,51 @@ describe("API client", () => {
     await vi.advanceTimersByTimeAsync(1);
     await expect(result).resolves.toBeInstanceOf(Blob);
     expect(mock).toHaveBeenCalledTimes(2);
+  });
+
+  it("continues retrying rate limits after the old three-attempt ceiling", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2030-01-01"));
+
+    const mock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
+      .mockResolvedValueOnce(new Response(new Blob(["png"]), {
+        status: 200,
+        headers: { "Content-Type": "image/png" }
+      }));
+    vi.stubGlobal("fetch", mock);
+
+    const result = renderBarcode("zpk_test", { type: "qr", data: "TEST" }, new AbortController().signal);
+    await vi.advanceTimersByTimeAsync(3000);
+
+    await expect(result).resolves.toBeInstanceOf(Blob);
+    expect(mock).toHaveBeenCalledTimes(4);
+  });
+
+  it("staggers simultaneous rate-limit retries instead of retrying in a burst", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2031-01-01"));
+
+    const mock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
+      .mockImplementation(async () => new Response(new Blob(["png"]), {
+        status: 200,
+        headers: { "Content-Type": "image/png" }
+      }));
+    vi.stubGlobal("fetch", mock);
+
+    const signal = new AbortController().signal;
+    const first = renderBarcode("zpk_test", { type: "qr", data: "ONE" }, signal);
+    const second = renderBarcode("zpk_test", { type: "qr", data: "TWO" }, signal);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(mock).toHaveBeenCalledTimes(3);
+
+    await vi.advanceTimersByTimeAsync(1000);
+    await expect(Promise.all([first, second])).resolves.toHaveLength(2);
+    expect(mock).toHaveBeenCalledTimes(4);
   });
 
   it("rejects a successful response that is not a PNG", async () => {

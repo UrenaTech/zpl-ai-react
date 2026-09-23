@@ -91,7 +91,7 @@ Public environment variables organize keys but do not hide them.
 
 ## Runtime
 
-Prop changes request a new image; stale requests are aborted. HTTP `429`, `500`, `502`, `503`, and `504` are retried up to twice, respecting `Retry-After` when provided. Loading uses `aria-label="Generating label"`; errors use `role="alert"`. Object URLs are revoked on unmount or prop changes. ZPL cropping needs `createImageBitmap` and Canvas 2D; barcode images do not.
+Prop changes request a new image; stale requests are aborted. HTTP `429` is retried up to ten times, respecting `Retry-After` and staggering concurrent retries; `500`, `502`, `503`, and `504` are retried up to twice. Loading uses `aria-label="Generating label"`; errors use `role="alert"`. Object URLs are revoked on unmount or prop changes. ZPL cropping needs `createImageBitmap` and Canvas 2D; barcode images do not.
 
 ## Development
 
