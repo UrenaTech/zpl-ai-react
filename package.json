@@ -2,7 +2,7 @@
   "name": "@zpl-ai/react",
   "version": "2.0.0",
   "description": "ZPL-native barcode and label image components for React, powered by ZPL.AI.",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

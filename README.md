@@ -105,4 +105,4 @@ The package builds ESM, CommonJS, and TypeScript declarations.
 
 ## License
 
-Proprietary and confidential. Copyright © 2026 UrenaTech LLC. See `LICENSE`.
+MIT License. Copyright © 2026 UrenaTech LLC. See `LICENSE`.
