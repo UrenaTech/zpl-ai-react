@@ -3,7 +3,7 @@
 `Barcode` sends `{ type, data: value }` to the [ZPL.AI public barcode endpoint](https://app.zpl.ai/api/scalar/). The API chooses the default size, interpretation line, resolution, and symbology settings; it validates symbology-specific data. The React component requires a nonblank `value` of at most 4096 characters. For custom ZPL or other render settings, use `ZplLabel` with trusted ZPL instead.
 
 ```tsx
-import { Barcode } from "@zpl-ai/react";
+import { Barcode } from "@urenatech/zpl-react";
 const apiKey = "zpk_xxxxx";
 ```
 

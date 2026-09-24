@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Barcode, isBarcodeType, SUPPORTED_BARCODE_TYPES, ZplLabel, type BarcodeType } from "@zpl-ai/react";
+import { Barcode, isBarcodeType, SUPPORTED_BARCODE_TYPES, ZplLabel, type BarcodeType } from "@urenatech/zpl-react";
 
 const sampleValues: Record<BarcodeType, string> = {
   code128: "ORDER-10452",
