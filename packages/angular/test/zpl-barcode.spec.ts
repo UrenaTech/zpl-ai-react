@@ -14,7 +14,7 @@ class Host {
   value = signal("ORDER^XZ~10452");
 }
 
-const png = () => new Response(new Blob(["png"], { type: "image/png" }), {
+const png = () => new Response("png", {
   headers: { "Content-Type": "image/png" }
 });
 
@@ -65,7 +65,7 @@ describe("ZplBarcode", () => {
     const image = await expectImage(fixture);
     expect(image.alt).toBe("code128 barcode for ORDER^XZ~10452");
     expect(image.src).toBe("blob:barcode");
-    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.any(Blob));
+    expect(URL.createObjectURL).toHaveBeenCalledWith(expect.objectContaining({ type: "image/png", size: 3 }));
   });
 
   it("validates blank data and the 4096 character boundary without changing the data", async () => {

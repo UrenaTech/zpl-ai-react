@@ -40,7 +40,7 @@ class BlankHost {
   zpl = signal("   ");
 }
 
-const png = () => new Response(new Blob(["png"], { type: "image/png" }), {
+const png = () => new Response("png", {
   headers: { "Content-Type": "image/png" }
 });
 
@@ -95,7 +95,7 @@ describe("ZplLabel", () => {
       dpmm: 8,
       backgroundColor: "#FFFFFF"
     });
-    expect(core.cropPng).toHaveBeenCalledWith(expect.any(Blob));
+    expect(core.cropPng).toHaveBeenCalledWith(expect.objectContaining({ type: "image/png", size: 3 }));
     expect(URL.createObjectURL).toHaveBeenCalledWith(cropped);
 
     fixture.componentInstance.alt.set("Updated description");
