@@ -1,10 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { renderBarcode, renderZpl } from "../api/render-barcode";
-import { ZplAiError } from "../errors";
-import { cropPng } from "../image/crop-png";
-import type { BarcodeType } from "../types";
+import { cropPng, renderBarcode, renderZpl, ZplAiError } from "@urenatech/zpl-core";
+import type { BarcodeType } from "@urenatech/zpl-core";
 
 type State =
   | { status: "loading" }

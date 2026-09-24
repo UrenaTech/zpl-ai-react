@@ -1,0 +1,42 @@
+{
+  "name": "@urenatech/zpl-angular",
+  "version": "1.0.0",
+  "description": "Standalone Angular components for ZPL.AI barcode and label PNGs.",
+  "license": "MIT",
+  "sideEffects": false,
+  "keywords": ["angular", "zpl", "barcode", "label", "zebra"],
+  "scripts": {
+    "build": "ng-packagr -p ng-package.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.spec.json",
+    "check": "npm run typecheck && npm test && npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "engines": {
+    "node": "^20.19.0 || ^22.12.0 || >=24.0.0"
+  },
+  "peerDependencies": {
+    "@angular/common": "^21.0.0",
+    "@angular/core": "^21.0.0"
+  },
+  "dependencies": {
+    "@urenatech/zpl-core": "^1.0.0",
+    "tslib": "^2.3.1"
+  },
+  "devDependencies": {
+    "@angular/common": "~21.2.24",
+    "@angular/compiler": "~21.2.24",
+    "@angular/compiler-cli": "~21.2.24",
+    "@angular/core": "~21.2.24",
+    "@angular/platform-browser": "~21.2.24",
+    "@types/node": "^22.15.0",
+    "jsdom": "^26.1.0",
+    "ng-packagr": "^21.2.7",
+    "rxjs": "^7.8.2",
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isBarcodeType, SUPPORTED_BARCODE_TYPES } from "../src/barcodes/supported-types";
+import { isBarcodeType, SUPPORTED_BARCODE_TYPES } from "../src";
 
 describe("supported type registry", () => {
   it("matches the public barcode image API discriminators", () => {

@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { renderBarcode, renderZpl } from "../src/api/render-barcode";
-import { ZplAiError } from "../src/errors";
+import { renderBarcode, renderZpl, ZplAiError } from "../src";
 
 describe("API client", () => {
   afterEach(() => {

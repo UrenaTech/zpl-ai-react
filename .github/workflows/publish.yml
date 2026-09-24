@@ -2,6 +2,15 @@ name: Publish to npm
 
 on:
   workflow_dispatch:
+    inputs:
+      package:
+        description: Package to publish
+        required: true
+        type: choice
+        options:
+          - '@urenatech/zpl-core'
+          - '@urenatech/zpl-react'
+          - '@urenatech/zpl-angular'
 
 permissions:
   contents: read
@@ -17,7 +26,14 @@ jobs:
           node-version: '22'
           registry-url: https://registry.npmjs.org
       - run: npm ci
-      # prepublishOnly runs the typecheck, tests, and build before publishing.
-      - run: npm publish --workspace @urenatech/zpl-react
+      - run: npm run check
+      # ng-packagr generates the Angular Package Format manifest in dist.
+      - if: inputs.package == '@urenatech/zpl-angular'
+        run: npm publish ./packages/angular/dist --access public --provenance
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - if: inputs.package != '@urenatech/zpl-angular'
+        run: npm publish --workspace "$PACKAGE"
+        env:
+          PACKAGE: ${{ inputs.package }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

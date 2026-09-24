@@ -16,6 +16,8 @@ npm install @urenatech/zpl-react
 
 React 18 and 19 are supported. The package is marked `"use client"` for Next.js App Router; React is a peer dependency.
 
+`@urenatech/zpl-core` is installed as a runtime dependency and provides shared barcode types, API requests, retry handling, errors, and PNG cropping.
+
 ## API compatibility
 
 This client follows the [ZPL.AI v1 API reference](https://app.zpl.ai/api/scalar/) and sends requests to **`https://app.zpl.ai/api`**. Deployments using this package require the documented public endpoints on `app.zpl.ai` and CORS access from your application's origin.
@@ -42,7 +44,7 @@ Supported types match the API's discriminator values:
 | --- | --- |
 | `code128`, `upca`, `upce`, `upc-extension`, `ean13`, `ean8`, `interleaved2of5`, `industrial2of5`, `code11`, `msi`, `code39`, `logmars`, `codabar`, `code93` | `data-matrix`, `pdf417`, `aztec`, `maxicode`, `qr` |
 
-See [barcode examples](docs/barcodes.md) for each type. `SUPPORTED_BARCODE_TYPES` and `isBarcodeType` are exported for dynamic inputs. Types outside the public barcode API can be rendered from trusted ZPL through `ZplLabel`, if supported by the ZPL renderer.
+See [barcode examples](docs/barcodes.md) for each type. `SUPPORTED_BARCODE_TYPES`, `isBarcodeType`, and `BarcodeType` are re-exported from `@urenatech/zpl-core` for dynamic inputs. Types outside the public barcode API can be rendered from trusted ZPL through `ZplLabel`, if supported by the ZPL renderer.
 
 ### ZplLabel
 

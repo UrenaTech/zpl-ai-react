@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { cropPng } from "../src/image/crop-png";
+import { cropPng } from "../src";
 
 describe("PNG cropping", () => {
   it("crops to the exact non-white bounds", async () => {

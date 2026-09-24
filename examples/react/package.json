@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build"
   },
   "dependencies": {
+    "@urenatech/zpl-core": "file:../../packages/core",
     "@urenatech/zpl-react": "file:../../packages/react",
     "@vitejs/plugin-react": "^5.0.2",
     "vite": "^7.1.5",

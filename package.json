@@ -6,6 +6,6 @@
     "packages/*"
   ],
   "scripts": {
-    "check": "npm run check --workspace @urenatech/zpl-react"
+    "check": "npm run check --workspace @urenatech/zpl-core && npm run check --workspace @urenatech/zpl-react && npm run check --workspace @urenatech/zpl-angular"
   }
 }
