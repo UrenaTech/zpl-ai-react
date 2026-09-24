@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Shared ZPL.AI barcode and ZPL image rendering runtime.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UrenaTech/zpl-api.git",
+    "directory": "packages/core"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

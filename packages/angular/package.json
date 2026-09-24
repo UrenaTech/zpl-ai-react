@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Standalone Angular components for ZPL.AI barcode and label PNGs.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UrenaTech/zpl-api.git",
+    "directory": "packages/angular"
+  },
   "sideEffects": false,
   "keywords": ["angular", "zpl", "barcode", "label", "zebra"],
   "scripts": {

@@ -3,6 +3,11 @@
   "version": "2.0.0",
   "description": "ZPL-native barcode and label image components for React, powered by ZPL.AI.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UrenaTech/zpl-api.git",
+    "directory": "packages/react"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
