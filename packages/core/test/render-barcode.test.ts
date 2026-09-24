@@ -88,7 +88,7 @@ describe("API client", () => {
         status: 429,
         headers: { "Content-Type": "application/json", "Retry-After": "2" }
       }))
-      .mockResolvedValueOnce(new Response(new Blob(["png"]), {
+      .mockResolvedValueOnce(new Response("png", {
         status: 200,
         headers: { "Content-Type": "image/png" }
       }));
@@ -100,7 +100,8 @@ describe("API client", () => {
     expect(mock).toHaveBeenCalledTimes(1);
 
     await vi.advanceTimersByTimeAsync(1);
-    await expect(result).resolves.toBeInstanceOf(Blob);
+    const image = await result;
+    expect(image).toMatchObject({ type: "image/png", size: 3 });
     expect(mock).toHaveBeenCalledTimes(2);
   });
 
@@ -112,7 +113,7 @@ describe("API client", () => {
       .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
       .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
       .mockResolvedValueOnce(new Response(null, { status: 429, headers: { "Retry-After": "1" } }))
-      .mockResolvedValueOnce(new Response(new Blob(["png"]), {
+      .mockResolvedValueOnce(new Response("png", {
         status: 200,
         headers: { "Content-Type": "image/png" }
       }));
@@ -121,7 +122,8 @@ describe("API client", () => {
     const result = renderBarcode("zpk_test", { type: "qr", data: "TEST" }, new AbortController().signal);
     await vi.advanceTimersByTimeAsync(3000);
 
-    await expect(result).resolves.toBeInstanceOf(Blob);
+    const image = await result;
+    expect(image).toMatchObject({ type: "image/png", size: 3 });
     expect(mock).toHaveBeenCalledTimes(4);
   });
 
