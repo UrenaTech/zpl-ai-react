@@ -28,7 +28,7 @@
     "@angular/core": "^21.0.0"
   },
   "dependencies": {
-    "@urenatech/zpl-core": "^1.0.0",
+    "@urenatech/zpl-core": "^1.0.1",
     "tslib": "^2.3.1"
   },
   "devDependencies": {

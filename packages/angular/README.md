@@ -35,7 +35,7 @@ export class ShippingComponent {
 
 `zpl-label` requires `apiKey: string` and `zpl: string`; `alt` is optional and defaults to `"ZPL label"`. It sends ZPL unchanged to `POST https://app.zpl.ai/api/public/zpl/img`, then crops the returned PNG to its non-white content in the browser. Use trusted or sanitized ZPL. If scanners require quiet zones, include them in the ZPL before cropping.
 
-Both components show `aria-label="Generating label"` while loading, display the image with alt text when ready, and show API errors with `role="alert"`. Input changes abort old requests and revoke the previous image URL; destroying the component also cleans up. Server rendering does not perform a fetch or access browser image APIs; the client renders the image after hydration. Label cropping requires `createImageBitmap` and Canvas 2D in the browser. The API must allow CORS requests from your site's origin.
+Both components show `aria-label="Generating label"` while loading, display the image with alt text when ready, and show API errors with `role="alert"`. Input changes abort old requests and revoke the previous image URL; destroying the component also cleans up. Server rendering does not perform a fetch; the client renders the image after hydration. The API must allow CORS requests from your site's origin.
 
 **Browser API keys are visible to every visitor.** Only pass keys intended for public browser use; never embed a secret key in Angular source or public environment configuration. Requests send `Authorization: Bearer <apiKey>`. Create a browser key in [ZPL.AI settings](https://app.zpl.ai/settings/apikeys).
 

@@ -1,6 +1,6 @@
 {
   "name": "@urenatech/zpl-core",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Shared ZPL.AI barcode and ZPL image rendering runtime.",
   "license": "MIT",
   "repository": {
@@ -52,5 +52,8 @@
     "vite": "^7.1.5",
     "vite-plugin-dts": "^4.5.4",
     "vitest": "^3.2.4"
+  },
+  "dependencies": {
+    "fast-png": "^8.0.0"
   }
 }

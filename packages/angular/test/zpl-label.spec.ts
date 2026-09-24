@@ -1,13 +1,8 @@
+import { Blob as NodeBlob } from "node:buffer";
 import { Component, PLATFORM_ID, provideZonelessChangeDetection, signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import * as core from "@urenatech/zpl-core";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ZplLabel } from "../src/public-api";
-
-vi.mock("@urenatech/zpl-core", async (importOriginal) => ({
-  ...await importOriginal<typeof core>(),
-  cropPng: vi.fn(async (blob: Blob) => blob)
-}));
 
 @Component({
   standalone: true,
@@ -40,9 +35,10 @@ class BlankHost {
   zpl = signal("   ");
 }
 
-const png = () => new Response("png", {
-  headers: { "Content-Type": "image/png" }
-});
+const png = () => new Response(Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAD0lEQVR4XmP4DwQMDAz/ARruBPyTIPhpAAAAAElFTkSuQmCC",
+  "base64"
+), { headers: { "Content-Type": "image/png" } });
 
 async function mount<T>(component: new () => T, server = false) {
   TestBed.configureTestingModule({ providers: [
@@ -70,7 +66,7 @@ describe("ZplLabel", () => {
       static createObjectURL = vi.fn(() => "blob:label");
       static revokeObjectURL = vi.fn();
     });
-    vi.mocked(core.cropPng).mockClear();
+    vi.stubGlobal("Blob", NodeBlob);
   });
 
   afterEach(() => {
@@ -79,8 +75,6 @@ describe("ZplLabel", () => {
   });
 
   it("sends ZPL unchanged, crops the PNG, updates alt without another request, and cleans up", async () => {
-    const cropped = new Blob(["cropped"], { type: "image/png" });
-    vi.mocked(core.cropPng).mockResolvedValueOnce(cropped);
     const fetchMock = vi.fn().mockImplementation(async () => png());
     vi.stubGlobal("fetch", fetchMock);
     const fixture = await mount(Host);
@@ -95,8 +89,10 @@ describe("ZplLabel", () => {
       dpmm: 8,
       backgroundColor: "#FFFFFF"
     });
-    expect(core.cropPng).toHaveBeenCalledWith(expect.objectContaining({ type: "image/png", size: 3 }));
-    expect(URL.createObjectURL).toHaveBeenCalledWith(cropped);
+    const cropped = vi.mocked(URL.createObjectURL).mock.calls[0][0] as Blob;
+    expect(cropped.type).toBe("image/png");
+    const imageHeader = new DataView(await cropped.arrayBuffer());
+    expect([imageHeader.getUint32(16), imageHeader.getUint32(20)]).toEqual([1, 1]);
 
     fixture.componentInstance.alt.set("Updated description");
     fixture.detectChanges();
@@ -106,7 +102,7 @@ describe("ZplLabel", () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:label");
   });
 
-  it("uses the default alt and reports crop failures", async () => {
+  it("uses the default alt and reports invalid PNGs", async () => {
     const fetchMock = vi.fn().mockImplementation(async () => png());
     vi.stubGlobal("fetch", fetchMock);
     const fixture = await mount(DefaultAltHost);
@@ -114,12 +110,14 @@ describe("ZplLabel", () => {
     fixture.destroy();
 
     TestBed.resetTestingModule();
-    vi.mocked(core.cropPng).mockRejectedValueOnce(new Error("Canvas 2D unavailable"));
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("not a png", {
+      headers: { "Content-Type": "image/png" }
+    })));
     const failed = await mount(DefaultAltHost);
     await vi.waitFor(() => {
       failed.detectChanges();
       expect(failed.nativeElement.querySelector('[role="alert"]')?.textContent)
-        .toBe("Canvas 2D unavailable");
+        .toMatch(/PNG/i);
     });
     expect(failed.nativeElement.querySelector("img")).toBeNull();
   });

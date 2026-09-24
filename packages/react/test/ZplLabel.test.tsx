@@ -1,10 +1,18 @@
+import { Blob as NodeBlob } from "node:buffer";
 import { render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ZplLabel } from "../src/components/ZplLabel";
 
 describe("ZplLabel", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
   it("renders arbitrary ZPL through the public ZPL endpoint", async () => {
-    const fetchMock = vi.fn().mockResolvedValue(new Response(new Blob(["png"]), {
+    vi.stubGlobal("Blob", NodeBlob);
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAD0lEQVR4XmP4DwQMDAz/ARruBPyTIPhpAAAAAElFTkSuQmCC",
+      "base64"
+    );
+    const fetchMock = vi.fn().mockResolvedValue(new Response(png, {
       status: 200,
       headers: { "Content-Type": "image/png" }
     }));
