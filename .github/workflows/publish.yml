@@ -11,6 +11,7 @@ on:
           - '@urenatech/zpl-core'
           - '@urenatech/zpl-react'
           - '@urenatech/zpl-angular'
+          - '@urenatech/zpl-vue'
 
 permissions:
   contents: read
@@ -27,7 +28,6 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm ci
       - run: npm run check
-      # ng-packagr generates the Angular Package Format manifest in dist.
       - if: inputs.package == '@urenatech/zpl-angular'
         run: npm publish ./packages/angular/dist --access public --provenance
         env:
