@@ -4,15 +4,14 @@ import { nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { Barcode, ZplLabel } from "../src";
 
-const png = () => new Response(Buffer.from("png"), {
-  status: 200,
-  headers: { "Content-Type": "image/png" }
-});
-
 const pngBytes = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAYAAAD0In+KAAAAD0lEQVR4XmP4DwQMDAz/ARruBPyTIPhpAAAAAElFTkSuQmCC",
   "base64"
 );
+const png = () => new Response(pngBytes, {
+  status: 200,
+  headers: { "Content-Type": "image/png" }
+});
 
 async function settle() {
   await flushPromises();
@@ -29,6 +28,7 @@ describe("Vue image components", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("posts unchanged barcode data and displays the original PNG", async () => {
+    vi.stubGlobal("Blob", NodeBlob);
     const fetchMock = vi.fn().mockResolvedValue(png());
     vi.stubGlobal("fetch", fetchMock);
     const wrapper = mount(Barcode, {
@@ -45,9 +45,8 @@ describe("Vue image components", () => {
     expect(options.headers.Authorization).toBe("Bearer zpk_test");
     expect(JSON.parse(options.body)).toEqual({ type: "code128", data: "ORDER^XZ~10452" });
     const rendered = vi.mocked(URL.createObjectURL).mock.calls[0][0];
-    expect(rendered).toBeInstanceOf(Blob);
-    if (!(rendered instanceof Blob)) throw new Error("Expected a PNG blob");
-    expect(rendered.size).toBe(3);
+    if (!("arrayBuffer" in rendered)) throw new Error("Expected a readable PNG");
+    expect(new Uint8Array(await rendered.arrayBuffer())).toEqual(new Uint8Array(pngBytes));
     wrapper.unmount();
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:label");
   });
